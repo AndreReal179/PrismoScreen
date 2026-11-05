@@ -15,7 +15,7 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Aceitar licencas do Android SDK (ja vem instalado no runner)
+      - name: Aceitar licencas do Android SDK
         run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses || true
 
       - uses: gradle/actions/setup-gradle@v4
@@ -23,9 +23,20 @@ jobs:
           gradle-version: 8.14.3
 
       - name: Compilar APK
-        run: gradle assembleDebug --no-daemon
+        run: |
+          ARQ=$(find . -name settings.gradle.kts -not -path "./.git/*" | head -n 1)
+          if [ -z "$ARQ" ]; then
+            echo "ERRO: settings.gradle.kts nao foi encontrado no repositorio. Envie os arquivos do projeto."
+            ls -R | head -50
+            exit 1
+          fi
+          DIR=$(dirname "$ARQ")
+          echo "Projeto encontrado em: $DIR"
+          cd "$DIR"
+          gradle assembleDebug --no-daemon
 
       - uses: actions/upload-artifact@v4
         with:
           name: espelho-carro-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: "**/app/build/outputs/apk/debug/app-debug.apk"
+          if-no-files-found: error
