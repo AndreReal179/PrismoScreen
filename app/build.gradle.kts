@@ -11,8 +11,8 @@ android {
         applicationId = "br.andre.espelhocarro"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1"
+        versionCode = 2
+        versionName = "0.2"
     }
 
     compileOptions {
@@ -26,5 +26,5 @@ android {
 }
 
 dependencies {
-    implementation("androidx.car.app:app:1.4.0")
+    implementation("androidx.media:media:1.7.0")
 }
