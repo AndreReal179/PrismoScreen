@@ -1,6 +1,6 @@
 # Espelho Carro (etapa 1)
 
-Menu de apps no Android Auto. Você marca no celular quais apps quer (iFood, inDrive...),
+App de mídia "de mentira" no Android Auto (versão 0.2): a lista de apps aparece como itens de música. Você marca no celular quais apps quer (iFood, inDrive...),
 eles aparecem numa lista na tela do carro, e tocar em um abre o app no celular.
 Ainda **não** espelha a imagem (etapas 3 e 4).
 
@@ -26,7 +26,7 @@ Ainda **não** espelha a imagem (etapas 3 e 4).
 2. Abra **Espelho Carro**, toque em **1) Permitir abrir apps pelo carro** e ative a permissão.
 3. Marque os apps que quer ver no carro.
 4. No Android Auto do celular, ative **Fontes desconhecidas** nas configurações de desenvolvedor.
-5. Conecte na tela do carro. Abra a lista de apps do Android Auto e procure **Espelho Carro**.
+5. Conecte na tela do carro. Abra a lista de apps do Android Auto e procure **Espelho Carro** (aparece junto dos apps de música, como o Fermata).
 6. Teste com o carro parado: toque em um app da lista e veja se ele abre no celular.
 
 ## Pontos de atenção
