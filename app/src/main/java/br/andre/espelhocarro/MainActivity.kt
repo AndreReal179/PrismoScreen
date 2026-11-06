@@ -2,6 +2,7 @@ package br.andre.espelhocarro
 
 import android.app.Activity
 import android.content.Intent
+import android.media.projection.MediaProjectionManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
@@ -10,6 +11,7 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ListView
+import android.widget.ScrollView
 import android.widget.TextView
 
 class MainActivity : Activity() {
@@ -30,17 +32,17 @@ class MainActivity : Activity() {
 
         val pad = (16 * resources.displayMetrics.density).toInt()
 
-        val inner = LinearLayout(this).apply {
+        val topo = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(pad, pad, pad, pad)
+            setPadding(pad, pad, pad, 0)
         }
 
-        inner.addView(TextView(this).apply {
-            text = "Marque os apps que vão aparecer na tela do carro:"
+        topo.addView(TextView(this).apply {
+            text = "Configuração (faça uma vez):"
             textSize = 18f
         })
 
-        inner.addView(Button(this).apply {
+        topo.addView(Button(this).apply {
             text = "1) Permitir abrir apps pelo carro"
             setOnClickListener {
                 startActivity(
@@ -50,6 +52,34 @@ class MainActivity : Activity() {
                     )
                 )
             }
+        })
+
+        topo.addView(Button(this).apply {
+            text = "2) Ativar o toque do carro (Acessibilidade)"
+            setOnClickListener {
+                startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+            }
+        })
+
+        topo.addView(Button(this).apply {
+            text = "3) Iniciar espelhamento da tela (escolha: tela inteira)"
+            setOnClickListener {
+                val mpm = getSystemService(MediaProjectionManager::class.java)
+                startActivityForResult(mpm.createScreenCaptureIntent(), PEDIDO_CAPTURA)
+            }
+        })
+
+        topo.addView(Button(this).apply {
+            text = "Parar espelhamento"
+            setOnClickListener {
+                stopService(Intent(this@MainActivity, CaptureService::class.java))
+            }
+        })
+
+        topo.addView(TextView(this).apply {
+            text = "Apps que aparecem na lista do carro:"
+            textSize = 16f
+            setPadding(0, pad, 0, 0)
         })
 
         list = ListView(this)
@@ -64,28 +94,41 @@ class MainActivity : Activity() {
             if (app.first in saved) list.setItemChecked(i, true)
         }
         list.setOnItemClickListener { _, _, _, _ -> salvar() }
-        inner.addView(
-            list,
-            LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
-        )
 
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             fitsSystemWindows = true
         }
         root.addView(
-            inner,
-            LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
+            ScrollView(this).apply { addView(topo) },
+            LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 0.55f)
+        )
+        root.addView(
+            list,
+            LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 0.45f)
         )
         setContentView(root)
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == PEDIDO_CAPTURA && resultCode == RESULT_OK && data != null) {
+            startForegroundService(
+                Intent(this, CaptureService::class.java)
+                    .putExtra("code", resultCode)
+                    .putExtra("data", data)
+            )
+        }
     }
 
     private fun salvar() {
         val checked = list.checkedItemPositions
         val pacotes = apps.indices.filter { checked.get(it) }.map { apps[it].first }
         AppPrefs.save(this, pacotes)
+    }
+
+    companion object {
+        private const val PEDIDO_CAPTURA = 100
     }
 }
