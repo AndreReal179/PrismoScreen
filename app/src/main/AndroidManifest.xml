@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="androidx.car.app.NAVIGATION_TEMPLATES" />
+    <uses-permission android:name="androidx.car.app.ACCESS_SURFACE" />
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+
+    <application
+        android:icon="@android:drawable/sym_def_app_icon"
+        android:label="Espelho Carro"
+        android:theme="@android:style/Theme.DeviceDefault.Light">
+
+        <meta-data
+            android:name="com.google.android.gms.car.application"
+            android:resource="@xml/automotive_app_desc" />
+        <meta-data
+            android:name="androidx.car.app.minCarApiLevel"
+            android:value="1" />
+
+        <!-- Lista de apps (funciona: aparece como app de música) -->
+        <service
+            android:name=".AppsMediaService"
+            android:exported="true"
+            android:label="Espelho Carro">
+            <intent-filter>
+                <action android:name="android.media.browse.MediaBrowserService" />
+            </intent-filter>
+        </service>
+
+        <!-- Tela do celular espelhada no carro (app de navegação) -->
+        <service
+            android:name=".EspelhoNavService"
+            android:exported="true"
+            android:label="Espelho Tela">
+            <intent-filter>
+                <action android:name="androidx.car.app.CarAppService" />
+                <category android:name="androidx.car.app.category.NAVIGATION" />
+            </intent-filter>
+        </service>
+
+        <!-- Captura da tela do celular -->
+        <service
+            android:name=".CaptureService"
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection" />
+
+        <!-- Toque vindo do carro -->
+        <service
+            android:name=".TouchService"
+            android:exported="true"
+            android:label="Espelho Carro (toque)"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_config" />
+        </service>
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
